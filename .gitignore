@@ -1,3 +1,9 @@
+ros2/build/*
+ros2/install/*
+ros2/log
+ros2/.vscode/*
+Arduino/dirtybot/.theia/*
+
 # Prerequisites
 *.d
 
