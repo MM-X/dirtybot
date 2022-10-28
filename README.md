@@ -48,7 +48,7 @@
 
 |  TOF  |  扫地机    | 
 | :--: | :--: |  
-|   <img src="docs/car/3.jpg" alt="img" style="zoom:26%;" />   |  <img src="docs/car/4.jpg" alt="img" style="zoom:40%;"/>    | 
+|   <img src="docs/car/3.jpg" alt="img" style="zoom:20%;" />   |  <img src="docs/car/4.jpg" alt="img" style="zoom:40%;"/>    | 
 | <img src="docs/pic/dirtybot_model1.png" alt="img" style="zoom:24%;" /> | <img src="docs/pic/dirtybot_model2.png" alt="img" style="zoom:25%;" />  |
 
 
@@ -116,3 +116,4 @@ SoftwareSerial mySerial(12, 13); // RX, TX
 - 欢迎大家提出好的建议，在Issue里提问题，不定期查看
 - 该文档会同步到地平线开发者社区，欢迎大家去查看，评论
 - 该项目完全开源，欢迎大家魔改
+- 有时间就持续更新。。。
