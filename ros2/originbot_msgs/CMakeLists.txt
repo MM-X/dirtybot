@@ -21,8 +21,8 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/OriginbotStatus.msg"
-  "srv/OriginbotBuzzer.srv"
-  "srv/OriginbotLed.srv"
+  "srv/OriginbotVoice.srv"
+  "srv/OriginbotServo.srv"
   "srv/OriginbotPID.srv"
 )
 

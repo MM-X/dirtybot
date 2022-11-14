@@ -1,5 +1,5 @@
 float32 battery_voltage
 float32 tof_distance
 uint16 voice_cmd
-bool buzzer_on
-bool led_on
+bool voice_on
+bool servo_on

@@ -47,9 +47,9 @@ OriginbotBase::OriginbotBase(std::string nodeName) : Node(nodeName)
     // 创建速度指令的订阅者
     cmd_vel_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&OriginbotBase::cmd_vel_callback, this, _1));
     
-    // 创建控制蜂鸣器和LED的服务
-    buzzer_service_ = this->create_service<originbot_msgs::srv::OriginbotBuzzer>("originbot_buzzer", std::bind(&OriginbotBase::buzzer_callback, this, _1, _2));
-    led_service_ = this->create_service<originbot_msgs::srv::OriginbotLed>("originbot_led", std::bind(&OriginbotBase::shovel_callback, this, _1, _2));
+    // 创建控制蜂鸣器和Servo的服务
+    voice_service_ = this->create_service<originbot_msgs::srv::OriginbotVoice>("originbot_voice", std::bind(&OriginbotBase::voice_callback, this, _1, _2));
+    servo_service_ = this->create_service<originbot_msgs::srv::OriginbotServo>("originbot_servo", std::bind(&OriginbotBase::shovel_callback, this, _1, _2));
     pid_service_ = this->create_service<originbot_msgs::srv::OriginbotPID>("originbot_pid", std::bind(&OriginbotBase::pid_callback, this, _1, _2));
 
     // 创建TF广播器
@@ -92,17 +92,17 @@ OriginbotBase::OriginbotBase(std::string nodeName) : Node(nodeName)
         }
     }
 
-    // 设置LED灯的初始状态
-    robot_status_.led_on = true;
+    // 设置Servo灯的初始状态
+    robot_status_.servo_on = true;
 
     // 启动一个100ms的定时器，处理订阅者之外的其他信息
     timer_100ms_ = this->create_wall_timer(
       100ms, std::bind(&OriginbotBase::timer_100ms_callback, this));
 
     // 初始化完成，蜂鸣器响1s，并输出日志
-    buzzer_control(true);
+    voice_control(true);
     // usleep(500000);
-    buzzer_control(false);
+    voice_control(false);
 
     RCLCPP_INFO(this->get_logger(), "OriginBot Start, enjoy it.");
 }
@@ -529,7 +529,7 @@ void OriginbotBase::cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr 
     //         cmdFrame.data[3], cmdFrame.data[4], cmdFrame.data[5], cmdFrame.check, cmdFrame.tail);
 }
 
-bool OriginbotBase::buzzer_control(uint16_t req)
+bool OriginbotBase::voice_control(uint16_t req)
 {
     DataFrame configFrame;
 
@@ -562,19 +562,19 @@ bool OriginbotBase::buzzer_control(uint16_t req)
     return true;
 }
 
-void OriginbotBase::buzzer_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotBuzzer::Request>  request,
-                                          std::shared_ptr<originbot_msgs::srv::OriginbotBuzzer::Response> response)
+void OriginbotBase::voice_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotVoice::Request>  request,
+                                          std::shared_ptr<originbot_msgs::srv::OriginbotVoice::Response> response)
 {
-    robot_status_.buzzer_on = bool(request->req);
+    robot_status_.voice_on = bool(request->req);
 
-    if(buzzer_control(request->req))
+    if(voice_control(request->req))
     {
-        RCLCPP_INFO(this->get_logger(), "Set Buzzer state to %d", robot_status_.buzzer_on);
+        RCLCPP_INFO(this->get_logger(), "Set Voice state to %d", robot_status_.voice_on);
         response->result = true;
     }
     else
     {
-        RCLCPP_WARN(this->get_logger(), "Set Buzzer state error [%d]", robot_status_.buzzer_on);
+        RCLCPP_WARN(this->get_logger(), "Set Voice state error [%d]", robot_status_.voice_on);
         response->result = false;        
     }
 }
@@ -583,7 +583,7 @@ bool OriginbotBase::shovel_control(uint8_t angle)
 {
     DataFrame configFrame;
 
-    // 封装控制LED指令的数据帧
+    // 封装控制Servo指令的数据帧
     configFrame.header = 0x55;
     configFrame.id     = 0x07;
     configFrame.length = 0x06;
@@ -612,19 +612,19 @@ bool OriginbotBase::shovel_control(uint8_t angle)
     return true;
 }
 
-void OriginbotBase::shovel_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotLed::Request>  request,
-                                       std::shared_ptr<originbot_msgs::srv::OriginbotLed::Response> response)
+void OriginbotBase::shovel_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotServo::Request>  request,
+                                       std::shared_ptr<originbot_msgs::srv::OriginbotServo::Response> response)
 {
-    robot_status_.led_on = bool(request->angle);
+    robot_status_.servo_on = bool(request->angle);
 
-    if(shovel_control(robot_status_.led_on))
+    if(shovel_control(robot_status_.servo_on))
     {
-        RCLCPP_INFO(this->get_logger(), "Set Led state to %d", robot_status_.led_on);
+        RCLCPP_INFO(this->get_logger(), "Set Servo state to %d", robot_status_.servo_on);
         response->result = true;
     }
     else
     {
-        RCLCPP_INFO(this->get_logger(), "Set Led state error [%d]", robot_status_.led_on);
+        RCLCPP_INFO(this->get_logger(), "Set Servo state error [%d]", robot_status_.servo_on);
         response->result = false;        
     }
 }                              
@@ -717,8 +717,8 @@ void OriginbotBase::timer_100ms_callback()
     status_msg.battery_voltage = robot_status_.battery_voltage;
     status_msg.tof_distance = robot_status_.tof_distance;
     status_msg.voice_cmd = robot_status_.voice_cmd;
-    status_msg.buzzer_on = robot_status_.buzzer_on;
-    status_msg.led_on = robot_status_.led_on;
+    status_msg.voice_on = robot_status_.voice_on;
+    status_msg.servo_on = robot_status_.servo_on;
 
     status_publisher_->publish(status_msg);
 }

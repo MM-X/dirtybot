@@ -35,8 +35,8 @@ class SubscriberNode(Node):
             OriginbotStatus, "originbot_status", self.listener_callback, 10) # 创建订阅者对象（消息类型、话题名、订阅者回调函数、队列长度）
 
     def listener_callback(self, msg):                                        # 创建回调函数，执行收到话题消息后对数据的处理
-        self.get_logger().info('battery voltage: "%0.2f", buzzer on: "%d", led on:  "%d"' \
-            % (msg.battery_voltage,msg.tof_distance, msg.buzzer_on, msg.led_on)) 
+        self.get_logger().info('battery voltage: "%0.2f", voice on: "%d", servo on:  "%d"' \
+            % (msg.battery_voltage,msg.tof_distance, msg.voice_on, msg.servo_on)) 
 
 def main(args=None):                                 # ROS2节点主入口main函数
     rclpy.init(args=args)                            # ROS2 Python接口初始化

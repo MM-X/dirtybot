@@ -23,8 +23,8 @@ setup(
             'draw_circle    = originbot_demo.draw_circle:main',
             'echo_odom      = originbot_demo.echo_odom:main',
             'echo_status    = originbot_demo.echo_status:main',
-            'control_buzzer = originbot_demo.control_buzzer:main',
-            'control_led    = originbot_demo.control_led:main',
+            'control_voice = originbot_demo.control_voice:main',
+            'control_servo    = originbot_demo.control_servo:main',
         ],
     },
 )

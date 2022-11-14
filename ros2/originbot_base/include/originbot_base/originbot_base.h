@@ -36,8 +36,8 @@ limitations under the License.
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include "originbot_msgs/msg/originbot_status.hpp"
-#include "originbot_msgs/srv/originbot_led.hpp"
-#include "originbot_msgs/srv/originbot_buzzer.hpp"
+#include "originbot_msgs/srv/originbot_servo.hpp"
+#include "originbot_msgs/srv/originbot_voice.hpp"
 #include "originbot_msgs/srv/originbot_pid.hpp"
 
 using namespace std::chrono_literals;
@@ -72,8 +72,8 @@ typedef struct {
     float battery_voltage;
     float tof_distance;
     uint16_t voice_cmd;
-    bool buzzer_on;
-    bool led_on;
+    bool voice_on;
+    bool servo_on;
 } RobotStatus;
 
 enum {
@@ -112,14 +112,14 @@ private:
     void odom_publisher(float vx, float vth);
     void imu_publisher();
 
-    bool buzzer_control(uint16_t req);
+    bool voice_control(uint16_t req);
     bool shovel_control(uint8_t angle);
 
     void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
-    void buzzer_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotBuzzer::Request>  request,
-                               std::shared_ptr<originbot_msgs::srv::OriginbotBuzzer::Response> response);
-    void shovel_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotLed::Request>  request,
-                            std::shared_ptr<originbot_msgs::srv::OriginbotLed::Response> response);
+    void voice_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotVoice::Request>  request,
+                               std::shared_ptr<originbot_msgs::srv::OriginbotVoice::Response> response);
+    void shovel_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotServo::Request>  request,
+                            std::shared_ptr<originbot_msgs::srv::OriginbotServo::Response> response);
     void pid_callback(const std::shared_ptr<originbot_msgs::srv::OriginbotPID::Request>  request,
                             std::shared_ptr<originbot_msgs::srv::OriginbotPID::Response> response);
 
@@ -148,8 +148,8 @@ private:
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscription_;
    
-    rclcpp::Service<originbot_msgs::srv::OriginbotBuzzer>::SharedPtr buzzer_service_;
-    rclcpp::Service<originbot_msgs::srv::OriginbotLed>::SharedPtr led_service_;
+    rclcpp::Service<originbot_msgs::srv::OriginbotVoice>::SharedPtr voice_service_;
+    rclcpp::Service<originbot_msgs::srv::OriginbotServo>::SharedPtr servo_service_;
     rclcpp::Service<originbot_msgs::srv::OriginbotPID>::SharedPtr pid_service_;
 
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
