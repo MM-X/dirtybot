@@ -1,0 +1,37 @@
+{
+    "linters": {
+        "cpp": {
+            "type": "cpplint",
+            "severity": {
+                "build/c++11": "disabled",
+                "build/header_guard": "disabled",
+                "build/include_subdir": "disabled",
+                "build/include_order": "disabled",
+                "runtime/references": "disabled"
+            },
+            "flags": ["--extensions=h,h++,hh,hpp,hxx,cc,c++,cpp,cxx,C"],
+            "include": ["(\\.h$)", "(\\.h++)", "(\\.hh)","(\\.hpp$)",  "(\\.hxx$)", "(\\.cc$)", "(\\.c++$)", "(\\.cpp$)", "(\\.cxx$)","(\\.C$)"],
+            "exclude": [
+                ]
+        },
+        "golang": {
+              "type": "golint",
+              "include": "(\\.go$)"
+        },
+        "c": {
+            "type": "cpplint",
+            "severity": {
+                "build/c++11": "disabled",
+                "build/include_subdir": "disabled",
+                "runtime/references": "disabled",
+                "readability/casting": "disabled",
+                "build/header_guard": "disabled",
+				"runtime/references": "disabled"
+            },
+            "flags": ["--extensions=h,c"],
+            "include": ["(\\.h$)", "(\\.c$)"],
+            "exclude": [
+                ]
+        }
+    }
+}
