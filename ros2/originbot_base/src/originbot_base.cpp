@@ -47,7 +47,7 @@ OriginbotBase::OriginbotBase(std::string nodeName) : Node(nodeName)
     // 创建速度指令的订阅者
     cmd_vel_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", 10, std::bind(&OriginbotBase::cmd_vel_callback, this, _1));
     
-    // 创建控制蜂鸣器和Servo的服务
+    // 创建语音指令和Servo的服务
     voice_service_ = this->create_service<originbot_msgs::srv::OriginbotVoice>("originbot_voice", std::bind(&OriginbotBase::voice_callback, this, _1, _2));
     servo_service_ = this->create_service<originbot_msgs::srv::OriginbotServo>("originbot_servo", std::bind(&OriginbotBase::shovel_callback, this, _1, _2));
     pid_service_ = this->create_service<originbot_msgs::srv::OriginbotPID>("originbot_pid", std::bind(&OriginbotBase::pid_callback, this, _1, _2));
@@ -206,6 +206,7 @@ void OriginbotBase::processVelocityData(DataFrame &frame)
     float left_speed = 0.0, right_speed = 0.0;
     float vx = 0.0, vth = 0.0;
     float delta_th = 0.0, delta_x = 0.0, delta_y = 0.0;
+    static float last_theta = 0.0;
 
     // 计算两个周期之间的时间差
     static rclcpp::Time last_time_ = this->now();
@@ -236,9 +237,14 @@ void OriginbotBase::processVelocityData(DataFrame &frame)
     //RCLCPP_INFO(this->get_logger(), "dt=%f left_speed=%f right_speed=%f vx=%f vth=%f", dt, left_speed, right_speed, vx, vth);
 
     // 计算里程计单周期内的姿态
-    delta_x = vx * cos(odom_th_) * dt;
-    delta_y = vx * sin(odom_th_) * dt;
-    delta_th = vth * dt;
+    if (use_imu_) {
+        delta_th = imu_data_.yaw - last_theta;
+    } else {
+        delta_th = vth * dt;
+    }
+    last_theta = imu_data_.yaw;
+    delta_x = vx * cos(odom_th_ + delta_th / 2.0f) * dt;
+    delta_y = vx * sin(odom_th_ + delta_th / 2.0f) * dt;
     
     // 计算里程计的累积姿态
     odom_x_  += delta_x;
@@ -277,27 +283,27 @@ void OriginbotBase::processAccelerationData(DataFrame &frame)
 {
     //RCLCPP_INFO(this->get_logger(), "Process acceleration data");
 
-    imu_data_.acceleration_x = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1);
-    imu_data_.acceleration_y = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1);
-    imu_data_.acceleration_z = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1);
+    imu_data_.acceleration_x = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1.0);
+    imu_data_.acceleration_y = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1.0);
+    imu_data_.acceleration_z = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1.0);
 }
 
 void OriginbotBase::processAngularData(DataFrame &frame)
 {
     //RCLCPP_INFO(this->get_logger(), "Process angular data");
 
-    imu_data_.angular_x = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1);
-    imu_data_.angular_y = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1);
-    imu_data_.angular_z = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1);
+    imu_data_.angular_x = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1.0);
+    imu_data_.angular_y = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1.0);
+    imu_data_.angular_z = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1.0);
 }
 
 void OriginbotBase::processEulerData(DataFrame &frame)
 {
     //RCLCPP_INFO(this->get_logger(), "Process euler data");
 
-    imu_data_.roll  = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1);
-    imu_data_.pitch = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1);
-    imu_data_.yaw   = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1);
+    imu_data_.roll  = imu_conversion(frame.data[1], frame.data[0]) / 100.0 * degToRad(1.0);
+    imu_data_.pitch = imu_conversion(frame.data[3], frame.data[2]) / 100.0 * degToRad(1.0);
+    imu_data_.yaw   = imu_conversion(frame.data[5], frame.data[4]) / 100.0 * degToRad(1.0);
 
     if(use_imu_)
         imu_publisher();
