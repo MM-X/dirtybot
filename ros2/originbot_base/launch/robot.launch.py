@@ -30,10 +30,10 @@ def generate_launch_description():
     port_name_arg = DeclareLaunchArgument('port_name', default_value='ttyS3',
                                          description='usb bus name, e.g. ttyS3')
 
-    correct_factor_vx_arg = DeclareLaunchArgument('correct_factor_vx', default_value='1.0',
+    correct_factor_vx_arg = DeclareLaunchArgument('correct_factor_vx', default_value='1.1',
                                          description='correct factor vx, e.g. 0.9')
 
-    correct_factor_vth_arg = DeclareLaunchArgument('correct_factor_vth', default_value='1.0',
+    correct_factor_vth_arg = DeclareLaunchArgument('correct_factor_vth', default_value='1.02',
                                          description='correct factor vth, e.g. 0.9')
 
     auto_stop_on_arg = DeclareLaunchArgument('auto_stop_on', default_value='false',
